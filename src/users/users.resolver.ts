@@ -2,33 +2,41 @@ import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { User } from './entities/user.entity';
+import { QueryLimit } from '../interfaces/query-limit';
+import { ParseUUIDPipe } from '@nestjs/common';
 
 @Resolver('User')
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Mutation('createUser')
-  create(@Args('createUserInput') createUserInput: CreateUserInput) {
+  async create(
+    @Args('createUserInput') createUserInput: CreateUserInput,
+  ): Promise<User> {
     return this.usersService.create(createUserInput);
   }
 
   @Query('users')
-  findAll() {
-    return this.usersService.findAll();
+  async findAll(@Args() queryLimit: QueryLimit): Promise<User[]> {
+    return this.usersService.findAll(queryLimit);
   }
 
   @Query('user')
-  findOne(@Args('id') id: number) {
-    return this.usersService.findOne(id);
+  async findOne(@Args('id', ParseUUIDPipe) id: string): Promise<User> {
+    return await this.usersService.findOne(id);
   }
 
   @Mutation('updateUser')
-  update(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.usersService.update(updateUserInput.id, updateUserInput);
+  async update(
+    @Args('id', ParseUUIDPipe) id: string,
+    @Args('updateUserInput') updateUserInput: UpdateUserInput,
+  ): Promise<User> {
+    return this.usersService.update({ id, newData: updateUserInput });
   }
 
   @Mutation('removeUser')
-  remove(@Args('id') id: number) {
+  remove(@Args('id', ParseUUIDPipe) id: string): Promise<User> {
     return this.usersService.remove(id);
   }
 }

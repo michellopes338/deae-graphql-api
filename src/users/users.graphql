@@ -1,24 +1,29 @@
 type User {
-  # Example field (placeholder)
-  exampleField: Int
+  id: String
+  username: String!
+  email: String!
+  verified_email: Boolean!
+  role: Role!
 }
 
-input CreateUserInput {
-  # Example field (placeholder)
-  exampleField: Int
+enum Role {
+  ADMIN
+  USER
 }
 
-input UpdateUserInput {
-  id: Int!
+input UserInput {
+  username: String
+  email: String
+  password: String
 }
 
 type Query {
-  users: [User]!
-  user(id: Int!): User
+  users(limit: Int, offset: Int): [User]!
+  user(id: ID!): User
 }
 
 type Mutation {
-  createUser(createUserInput: CreateUserInput!): User!
-  updateUser(updateUserInput: UpdateUserInput!): User!
-  removeUser(id: Int!): User
+  createUser(createUserInput: UserInput!): User!
+  updateUser(id: ID!, updateUserInput: UserInput!): User!
+  removeUser(id: ID!): User
 }
